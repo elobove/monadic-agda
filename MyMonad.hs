@@ -1,4 +1,5 @@
 module MyMonad where
+
 import Prelude hiding (Monad, return, fail)
 
 -- MONAD CLASS
