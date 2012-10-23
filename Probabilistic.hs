@@ -17,17 +17,17 @@ uniform :: [a] -> [a]
 uniform [x] = return x
 uniform (x:xs) = choice (1/length1 (x:xs)) (return x) (uniform xs)
 
---| THE MONTY HALL PROBLEM
+-- THE MONTY HALL PROBLEM
 data Door = A | B | C deriving (Eq, Show)
 
 doors :: [Door]
 doors = [A,B,C]
 
---| Hiding the car behind one door ramdonly
+-- Hiding the car behind one door ramdonly
 hide :: [Door]
 hide = uniform doors
 
---| Selecting one door ramdonly
+-- Selecting one door ramdonly
 pick :: [Door]
 pick = uniform doors
 
@@ -35,15 +35,15 @@ pick = uniform doors
 [] \\ _ = []
 x \\ y = [a | a <- x, a `notElem` y]
 
---| Opening one door to reveal a goat
+-- Opening one door to reveal a goat
 tease :: Door -> Door -> [Door]
 tease h p = uniform (doors \\ [h,p])
 
---| Switching the original choice
+-- Switching the original choice
 switch :: Door -> Door -> [Door]
 switch p t = return (head (doors \\ [p,t]))
 
---| Staying in the original choice
+-- Staying in the original choice
 stick :: Door -> Door -> [Door]
 stick p t = return p
 
@@ -55,4 +55,13 @@ play strategy = do
   s <- strategy p t
   return (s == h)
   
---| Cartesian Product
+-- Cartesian Product
+cp :: [a] -> [b] -> [(a,b)]
+cp x y = [(a,b) | a <- x, b <- y]
+
+play2 :: (Door -> Door -> [Door]) -> [Bool]
+play2 strategy = do
+  (h,p) <- uniform (cp doors doors)
+  t <- tease h p
+  s <- strategy p t
+  return (s == h)
