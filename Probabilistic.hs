@@ -2,12 +2,27 @@
 
 import MyMonad
 import Prelude hiding (Monad,return)
+import System.Random
+ 
+main = do
+    seed  <- newStdGen
+    let r = rand seed
+    print (r)
+ 
+rand :: StdGen -> Int
+rand g = fst (random g)
   
+-- Standard normal distribution
+norStd :: (Real a, Floating a) => a -> a
+norStd x = (exp((-x^2)/2)/sqrt(4*pi))
+
 class Monad m => MonadProb m where
   choice :: (Fractional b, Ord b) => b -> m a -> m a -> m a
-  choice p x y = if p < (1-p) then y else x
+  rnd :: (MonadProb m, Num a) => m a
 
 instance MonadProb [] where
+  choice p x y = if p < (head rnd) then y else x
+  rnd = [3]
 
 length1 :: Fractional b => [a] -> b
 length1 [] = 0.0
@@ -31,17 +46,17 @@ hide = uniform doors
 pick :: [Door]
 pick = uniform doors
 
-(\\) :: Eq a => [a] -> [a] -> [a]
-[] \\ _ = []
-x \\ y = [a | a <- x, a `notElem` y]
+(\/) :: Eq a => [a] -> [a] -> [a]
+[] \/ _ = []
+x \/ y = [a | a <- x, a `notElem` y]
 
 -- Opening one door to reveal a goat
 tease :: Door -> Door -> [Door]
-tease h p = uniform (doors \\ [h,p])
+tease h p = uniform (doors \/ [h,p])
 
 -- Switching the original choice
 switch :: Door -> Door -> [Door]
-switch p t = return (head (doors \\ [p,t]))
+switch p t = return (head (doors \/ [p,t]))
 
 -- Staying in the original choice
 stick :: Door -> Door -> [Door]
@@ -54,7 +69,7 @@ play strategy = do
   t <- tease h p
   s <- strategy p t
   return (s == h)
-  
+
 -- Cartesian Product
 cp :: [a] -> [b] -> [(a,b)]
 cp x y = [(a,b) | a <- x, b <- y]
