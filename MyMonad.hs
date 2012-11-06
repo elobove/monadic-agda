@@ -24,9 +24,11 @@ class Monad m => MonadAlt m where
 class (MonadFail m, MonadAlt m) => MonadNondet m where
 
 -- Exception
+  {-
 class MonadFail m => MonadExcept m where
   catch :: m a -> m a -> m a
   catch m h = do {v <- m; if v == fail then h else m}
+-}
 
 -- INSTANCES
 instance Monad [] where
@@ -45,9 +47,9 @@ instance MonadAlt [] where
   sq = (++)
 
 instance MonadNondet [] where
-
+{-
 instance MonadExcept [] where
-
+-}
 -- EXTRA FUNCTIONS
 skip :: Monad m => m ()
 skip = return ()

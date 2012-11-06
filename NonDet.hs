@@ -15,7 +15,7 @@ assert p mx = do {x <- mx; guard (p x); return x}
 -- Permutations
 select :: [a] -> [(a,[a])]
 select []     = fail
-select (x:xs) = sq (return (x,xs)) (do {(y,ys) <- select xs; return (y,x:ys)})
+select (x:xs) = (return (x,xs)) ++ (do {(y,ys) <- select xs; return (y,x:ys)})
 
 perms :: [a] -> [[a]]
 perms [] = return []
