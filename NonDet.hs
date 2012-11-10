@@ -1,22 +1,17 @@
 module NonDet where
 
-import Prelude hiding (Monad, return, fail)
-import MyMonad
+import Control.Monad
 
 -- NONDETERMINISTIC COMPUTATIONS
--- Examples
-guard :: MonadFail m => Bool -> m ()
-guard True  = skip
-guard False = fail
 
-assert :: (a -> Bool) -> [a] -> [a]
-assert p mx = do {x <- mx; guard (p x); return x}
-
--- Permutations
+-- Select an element of a list
 select :: [a] -> [(a,[a])]
-select []     = fail
-select (x:xs) = (return (x,xs)) ++ (do {(y,ys) <- select xs; return (y,x:ys)})
+select []     = mzero
+select (x:xs) = mplus (return (x,xs)) aux
+  where aux = do {(y,ys) <- select xs; return (y,x:ys)}
 
+-- Permute a finite list
 perms :: [a] -> [[a]]
 perms [] = return []
-perms xs = do {(y,ys) <- select xs; zs <- perms ys; return (y:zs)}
+perms xs =
+  do {(y,ys) <- select xs; zs <- perms ys; return (y:zs)}
