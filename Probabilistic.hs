@@ -4,7 +4,8 @@ module Probabilistic where
 import System.Random
 import System.Environment
 
-main :: IO()
+-- PROBABILISTIC COMPUTATIONS
+main :: IO ()
 main = do
     g <- newStdGen
     putStrLn "What is your strategy?"
@@ -57,7 +58,7 @@ tease h p = uniform $ doors \/ [h,p]
 switch :: Door -> Door -> [Door]
 switch p t = return $ head (doors \/ [p,t])
 
--- Stay in the original choice
+-- Preserve the original choice
 stick :: Door -> Door -> [Door]
 stick p t = return p
 
