@@ -4,6 +4,11 @@ import Control.Monad
 import Network.HTTP.Base
 
 -- EXCEPTIONAL COMPUTATIONS
+main :: IO ()
+main = do
+  xs <- getLine
+  sol <- fastprod $ read xs
+  print (sol)
 
 -- Multiply the elements of an integer list
 fastprod :: [Int] -> IO Int
