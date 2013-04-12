@@ -4,6 +4,8 @@ open import Abel.Category.Monad
 open import Abel.Category.Applicative
 open import Abel.Category.Functor
 
+open import Data.List
+open import Data.Tuple
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
 ------------------------------------------------------------------
@@ -44,3 +46,13 @@ record MonadAlt (M : Set → Set) {monad : Monad M} : Set₁ where
 record MonadNonDet (M : MonadFail MonadAlt) : Set₁ where
   constructor
     mkMonadNonDet
+
+select : {M : MonadNonDet} {A : Set} → List A → M <A , List (List A)>
+select []       = fail
+select (x ∷ xs) = 
+  return (x, xs) □ (select xs >>= (λ <y , ys> → return <y , (x ∷ ys)>))
+
+perms : {M : MonadNonDet} {A : Set} → List A → M (List A)
+perms [] = return []
+perms xs = 
+  select xs >>= λ <y , ys> → (perms ys >>= (λ zs → return (y ∷ zs)))
