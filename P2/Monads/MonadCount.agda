@@ -1,55 +1,90 @@
 module Monads.MonadCount where
 
 open import Abel.Category.Monad
-open import Abel.Category.Applicative
-open import Abel.Category.Functor
+open import Monads.Exponentiation
 
 open import Data.Nat
-open import Data.Maybe
+open import Data.Unit
+open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
-------------------------------------------------------------------
--- Unit type
-
-data ⊤ : Set where
-  tt : ⊤
 
 ------------------------------------------------------------------
 -- MonadCount
 
-record MonadCount (M : Set → Set) {applicative : Applicative M}
-                  {monad : Monad M {applicative}} : Set₁ where
+record MonadCount {M : Set → Set} (monad : Monad M) : Set₁ where
+
   constructor
     mkMonadCount
+
+  open Monad monad
 
   field
     tick : M ⊤
 
-skip : {M : Monad} → M ⊤
-skip = return tt
+open Monad
 
-hanoi : {M : MonadCount} → ℕ → M ⊤
-hanoi zero    = skip
-hanoi (suc n) = hanoi n >> tick >> hanoi n
+skip : {M : Set → Set} → Monad M → M ⊤
+skip Mon = return Mon tt
+
+rep : {M : Set → Set} →  Monad M → ℕ → M ⊤ → M ⊤
+rep Mon zero    mx = skip Mon
+rep Mon (suc n) mx = _>>_ Mon (mx) (rep Mon n mx)
+
+hanoi : {M : Set → Set} →  Monad M →  ℕ → M ⊤
+hanoi Mon zero    = skip Mon 
+hanoi Mon (suc n) = 
+  _>>_ Mon (hanoi Mon n) (_>>_ Mon (skip Mon) (hanoi Mon n))
 
 
-rep : {A : Set} {M : Set → Set} {monad : Monad M} → ℕ → M A → M A
-rep zero    mx = skip
-rep (suc n) mx = mx >> rep n mx
+open Relation.Binary.PropositionalEquality.≡-Reasoning
 
-p1 : {mx : Monad T} → rep 1 mx ≡ mx
-p1 refl = refl
 
-p2 : {mx : Monad T}(m n : ℕ) → rep (m + n) mx ≡ (rep m mx >> rep n mx)
-p2 refl = refl
+p1 : {M : Set → Set} (Mon : Monad M) (mx : M ⊤) → rep Mon 1 mx ≡ mx
+p1 Mon mx = refl
 
-prueba : ∀{n} → hanoi n ≡ (rep ((2^n)-1) tick)
-prueba zero    = hanoi zero
-prueba (suc n) =
-  hanoi n >> tick >> hanoi n ≡⟨ hanoi (suc n) ⟩
-  rep ((2^n)-1) tick >> tick >> rep ((2^n)-1) tick ≡⟨ p1⟩
-  rep ((2^n)-1) tick >> rep 1 tick >> rep ((2^n)-1) tick ≡⟨ p2 rep ((2^n)-1) 1⟩
-  rep ((2^n)-1+1) tick >> rep ((2^n)-1) tick ≡⟨ p2 ((2^n)-1+1) 1 ⟩
-  rep ((2^n)-1+1+(2^n)-1) tick ≡⟨ ⟩
-  rep ((2^n)+(2^n)-1+1-1) tick ≡⟨ ⟩
-  rep ((2^(n+1))-1+1-1) tick ≡⟨ ⟩
-  rep ((2^(n+1))-1) tick ◼
+{-
+prop1 : {M : Set → Set} (Mon : Monad M) (mx : M ⊤) → rep Mon 1 mx ≡ mx
+prop1 Mon mx = rep Mon 1 mx ≡⟨ rep Mon (suc zero) mx ⟩
+               _>>_ Mon mx (rep Mon zero mx) ≡⟨ rep Mon zero mx ⟩
+               _>>_ Mon mx (skip Mon) ∎
+-}
+
+{-
+p2 : {M : Set → Set}  {mx : M ⊤} (Mon : Monad M) (m n : ℕ) → 
+     rep Mon (m + n) mx ≡ (_>>_  Mon (rep Mon m mx) (rep Mon n mx))
+p2 Mon m n = refl
+-}
+
+{-
+test : {M : Set → Set} {mx : M ⊤} (Mon : Monad M) (n : ℕ) → 
+       (hanoi Mon n) ≡ (rep Mon ((2 ^ n) ∸ 1) mx)
+test Mon zero    = refl
+test Mon (suc n) = step Mon (test Mon n)
+  where
+    open Relation.Binary.PropositionalEquality.≡-Reasoning
+
+    step : {M : Set → Set} (Mon : Monad M) →
+           hanoi Mon n ≡ rep Mon ((2 ^ n) ∸ 1) (skip Mon) → 
+           hanoi Mon (n + 1) ≡ rep Mon ((2 ^ (n + 1)) ∸ 1) (skip Mon)
+    step Mon =
+      begin
+        _>>_ Mon (hanoi Mon n) (_>>_ Mon (skip Mon) (hanoi Mon n))
+          -- ≡⟨ hanoi Mon (suc n) ⟩
+          ≡⟨  ⟩
+        _>>_ Mon (rep Mon ((2 ^ n)  ∸ 1) (skip Mon)) 
+        (_>>_ Mon (skip Mon) (rep Mon ((2 ^ n)  ∸ 1) (skip Mon))
+          ≡⟨ p1 Mon (skip Mon) ⟩
+        _>>_ Mon (rep Mon ((2 ^ n)  ∸ 1) (skip Mon))
+        (_>>_ Mon (rep Mon 1 (skip Mon) (rep Mon ((2 ^ n) ∸ 1) (skip Mon))
+          ≡⟨ p2 Mon ((2 ^ n)  ∸ 1)) 1 (skip Mon) ⟩
+        _>>_ Mon (rep Mon ((2 ^ n)  ∸ 1 + 1) (skip Mon))
+        (rep Mon ((2 ^ n)  ∸ 1) (skip Mon))
+          ≡⟨ p2 ((2 ^ n)  ∸ 1 + 1) 1 (skip Mon) ⟩
+        rep Mon ((2 ^ n) ∸ 1 + 1 + (2 ^ n)  ∸ 1) (skip Mon)
+          ≡⟨ ⟩
+        rep Mon ((2 ^ n) + (2 ^ n ) ∸ 1 + 1 ∸ 1) (skip Mon) 
+          ≡⟨ ⟩
+        rep Mon ((2 ^ (n + 1))  ∸ 1 + 1  ∸ 1) (skip Mon)
+          ≡⟨ ⟩
+        rep Mon ((2 ^ (n + 1))  ∸ 1) (skip Mon) ∎
+-}
