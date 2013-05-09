@@ -47,7 +47,7 @@ record MonadNonDet (M : MonadFail MonadAlt) : Set₁ where
   constructor
     mkMonadNonDet
 
-select : {M : MonadNonDet} {A : Set} → List A → M <A , List (List A)>
+select : {M : MonadNonDet} {A : Set} → List A → M <A , (List A)>
 select []       = fail
 select (x ∷ xs) = 
   return (x, xs) □ (select xs >>= (λ <y , ys> → return <y , (x ∷ ys)>))
