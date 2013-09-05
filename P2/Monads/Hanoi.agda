@@ -46,9 +46,9 @@ rep-mn (suc m) n mx =
     where f = λ x → bind (λ _ → x) mx
 
 -- P(a - b) con a = b + c Bool = a < b
-diffSplit : ∀ c d → (f : ℕ → ℕ → ℕ) → Bool → ℕ
-diffSplit _ d f true  = f zero d
-diffSplit c d f false = f c    d
+-- diffSplit : ∀ c d → (f : ℕ → ℕ → ℕ) → Bool → ℕ
+-- diffSplit _ d f true  = f zero d
+-- diffSplit c d f false = f c    d
 
 postulate thm : ∀ n → ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1) ≡ 2 ^ (n + 1) ∸ 1
 
