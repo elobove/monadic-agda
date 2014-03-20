@@ -93,6 +93,10 @@ p2 (suc n) =
     2 ^ (suc n + 1)
   ∎
 
+p1-dif : ∀ q n m → (q + n) ∸ (q + m) ≡ n ∸ m
+p1-dif zero    n m = refl
+p1-dif (suc k) n m = cong (λ x → x) (p1-dif k n m)
+
 -- +∸-assoc : ∀ m n p → m + (suc n ∸ p) ≡ (m + suc n) ∸ p
 -- +∸-assoc zero    _ _ = refl
 -- +∸-assoc (suc m) n p =
