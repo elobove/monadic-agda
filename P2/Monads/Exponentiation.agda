@@ -1,3 +1,7 @@
+------------------------------------------------------------------------------
+-- | Exponentiation: Mathematical operation
+------------------------------------------------------------------------------
+
 module Monads.Exponentiation where
 
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
@@ -9,21 +13,21 @@ x ^ (suc n) = x * (x ^ n)
 
 open Relation.Binary.PropositionalEquality.≡-Reasoning
 
--- Symmetry
+-- | Symmetry
 sym : {A : Set}{x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
--- Right identity for addition
+-- | Right identity for addition
 +-rightIdentity : ∀ n → n + zero ≡ n
 +-rightIdentity zero    = refl
 +-rightIdentity (suc n) = cong suc ( +-rightIdentity n)
 
--- Rigth identity for multiplication
+-- | Rigth identity for multiplication
 *-rightIdentity : ∀ n → n * 1 ≡ n
 *-rightIdentity  zero   = refl
 *-rightIdentity (suc n) = cong suc (*-rightIdentity n)
 
--- Rigth identity for exponentiation
+-- | Rigth identity for exponentiation
 ^-rightIdentity : ∀ n → n ^ 1 ≡ n
 ^-rightIdentity zero    = refl
 ^-rightIdentity (suc n) = *-rightIdentity (suc n)
@@ -32,7 +36,7 @@ x+Sy≡S[x+y] : ∀ m n → m + suc n ≡ suc (m + n)
 x+Sy≡S[x+y] zero    n  = refl
 x+Sy≡S[x+y] (suc m) n = cong suc (x+Sy≡S[x+y] m n)
 
--- Commutative property of addition
+-- | Commutative property of addition
 +-comm : ∀ m n → m + n ≡ n + m
 +-comm zero    n = sym (+-rightIdentity n)
 +-comm (suc m) n =
@@ -42,7 +46,7 @@ x+Sy≡S[x+y] (suc m) n = cong suc (x+Sy≡S[x+y] m n)
     n + suc m
   ∎
 
--- Associative property of addition
+-- | Associative property of addition
 +-assoc : ∀ m n p → m + (n + p) ≡ (m + n) + p
 +-assoc zero    _ _ = refl
 +-assoc (suc m) n p = cong suc (+-assoc m n p)
@@ -51,7 +55,7 @@ succ : ∀ n → suc n ≡ n + 1
 succ zero    = refl
 succ (suc n) = cong suc (succ n)
 
--- Distributive property
+-- | Distributive property
 left-dist : ∀ m n p → m * (n + p) ≡ m * n + m * p
 left-dist zero    _ _ = refl
 left-dist (suc m) n p =

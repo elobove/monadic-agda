@@ -1,9 +1,13 @@
+------------------------------------------------------------------------------
+-- | Towers of Hanoi: A counter example
+------------------------------------------------------------------------------
+
 open import Abel.Category.Monad
 open import Monads.MonadCount
 
 module Monads.Hanoi
   {M  : Set → Set}
-  {Mm : Monad M}
+  {Mm : Monad'' M}
   (Mc : MonadCount Mm)
   where
 
@@ -13,23 +17,27 @@ open import Function using (_∘_)
 open import Monads.Exponentiation
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
-open Monad Mm
+open Monad'' Mm
 
 skip : M ⊤
 skip = return tt
 
 open MonadCount Mc
 
-rep :  ℕ → M ⊤ → M ⊤
-rep zero    mx = skip
-rep (suc n) mx = mx >> rep n mx
-
+-- | Solves the Towers of Hanoi problem. It ticks the counter once for
+-- | each move of a disc
 hanoi : ℕ → M ⊤
 hanoi zero    = skip
 hanoi (suc n) = hanoi n >> tick >> hanoi n
 
+-- | Repeats a unit computation a fixed number of times
+rep :  ℕ → M ⊤ → M ⊤
+rep zero    mx = skip
+rep (suc n) mx = mx >> rep n mx
+
 open Relation.Binary.PropositionalEquality.≡-Reasoning
 
+-- | Properties of rep
 rep-1 : (mx : M ⊤) → rep 1 mx ≡ mx
 rep-1 = unity-right
 
@@ -45,11 +53,7 @@ rep-mn (suc m) n mx =
   ∎
     where f = λ x → bind (λ _ → x) mx
 
--- P(a - b) con a = b + c Bool = a < b
--- diffSplit : ∀ c d → (f : ℕ → ℕ → ℕ) → Bool → ℕ
--- diffSplit _ d f true  = f zero d
--- diffSplit c d f false = f c    d
-
+-- | Verification of hanoi
 postulate thm : ∀ n → ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1) ≡ 2 ^ (n + 1) ∸ 1
 
 test : ∀ n → hanoi n ≡ rep ((2 ^ n) ∸ 1) tick

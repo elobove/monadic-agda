@@ -1,3 +1,8 @@
+------------------------------------------------------------------------------
+-- | MonadNonDet: Models nondeterministic programs using failure and choice
+-- | features
+------------------------------------------------------------------------------
+
 module Monads.MonadNonDet where
 
 open import Abel.Category.Monad
@@ -6,11 +11,11 @@ open import Relation.Binary.PropositionalEquality using (_≡_)
 ------------------------------------------------------------------
 -- MonadNonDet
 
-record MonadNonDet {M : Set → Set} (monad : Monad M) : Set₁ where
+record MonadNonDet {M : Set → Set} (monad : Monad'' M) : Set₁ where
   constructor
     mkMonadNonDet
 
-  open Monad monad
+  open Monad'' monad
 
   field
     fail : {A : Set} → M A
