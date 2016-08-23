@@ -2,7 +2,7 @@
 -- | Tuple
 ------------------------------------------------------------------------------
 
-module Monads.Data.Tuple where
+module Proof.Data.Tuple where
 
 data _x_ (A B : Set) : Set where
   ⟨_,_⟩ : A → B → A x B

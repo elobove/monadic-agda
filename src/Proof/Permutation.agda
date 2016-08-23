@@ -3,16 +3,16 @@
 ------------------------------------------------------------------------------
 
 open import Abel.Category.Monad
-open import Monads.MonadNonDet
+open import Proof.MonadNonDet
 
-module Monads.Permutation
+module Proof.Permutation
   {M   : Set → Set}
   {Mm  : Monad'' M}
   (Mnd : MonadNonDet Mm)
   where
 
 open import Data.List
-open import Monads.Data.Tuple
+open import Proof.Data.Tuple
 
 open Monad'' Mm
 open MonadNonDet Mnd

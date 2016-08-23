@@ -3,9 +3,9 @@
 ------------------------------------------------------------------------------
 
 open import Abel.Category.Monad
-open import Monads.MonadCount
+open import Proof.MonadCount
 
-module Monads.Hanoi
+module Proof.Hanoi
   {M  : Set → Set}
   {Mm : Monad'' M}
   (Mc : MonadCount Mm)
@@ -14,7 +14,7 @@ module Monads.Hanoi
 open import Data.Nat
 open import Data.Unit
 open import Function using (_∘_)
-open import Monads.Exponentiation
+open import Proof.Exponentiation
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
 open Monad'' Mm

@@ -3,7 +3,7 @@
 -- | features
 ------------------------------------------------------------------------------
 
-module Monads.MonadNonDet where
+module Proof.MonadNonDet where
 
 open import Abel.Category.Monad
 open import Relation.Binary.PropositionalEquality using (_≡_)

@@ -2,7 +2,7 @@
 -- | MonadCount: Supports effect of counting
 ------------------------------------------------------------------------------
 
-module Monads.MonadCount where
+module Proof.MonadCount where
 
 open import Abel.Category.Monad
 open import Data.Unit

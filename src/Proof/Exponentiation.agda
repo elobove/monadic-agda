@@ -2,7 +2,7 @@
 -- | Exponentiation: Mathematical operation
 ------------------------------------------------------------------------------
 
-module Monads.Exponentiation where
+module Proof.Exponentiation where
 
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 open import Data.Nat
