@@ -6,6 +6,7 @@ module Proof.Exponentiation where
 
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 open import Data.Nat
+open import Data.Bool
 
 _^_ : ℕ → ℕ → ℕ
 x ^ zero    = 1
@@ -74,6 +75,15 @@ left-dist (suc m) n p =
       ≡⟨ sym (+-assoc (suc m * n) p (m * p)) ⟩
     suc m * n + suc m * p
   ∎
+
+-- | Split rule of Natural number subtraction
+diffSplit : ∀ (P : ℕ → Set) → (n m : ℕ) → (n < m → P 0) →
+            (∀ (p : ℕ) → n ≡ m + p → P p) → P (n ∸ m)
+diffSplit P zero    zero    _  pN = pN zero refl
+diffSplit P zero    (suc m) p0 _  = p0 (s≤s z≤n)
+diffSplit P (suc n) zero    p0 pN = pN (suc n) refl
+diffSplit P (suc n) (suc m) p0 pN =
+  diffSplit P n m (λ z → p0 (s≤s z)) (λ p z → pN p (cong suc z))
 
 2n≡n+n : ∀ n → 2 * n ≡ n + n
 2n≡n+n zero    = refl
