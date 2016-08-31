@@ -7,7 +7,9 @@ module Proof.Exponentiation where
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 open import Data.Nat
 open import Data.Bool
+open import Data.Nat.Properties
 
+-- | Exponentiation operation
 _^_ : ℕ → ℕ → ℕ
 x ^ zero    = 1
 x ^ (suc n) = x * (x ^ n)
@@ -77,8 +79,8 @@ left-dist (suc m) n p =
   ∎
 
 -- | Split rule of Natural number subtraction
-diffSplit : ∀ (P : ℕ → Set) → (n m : ℕ) → (n < m → P 0) →
-            (∀ (p : ℕ) → n ≡ m + p → P p) → P (n ∸ m)
+diffSplit : ∀ (P : ℕ → Set) → (m n : ℕ) → (m < n → P 0) →
+            (∀ (p : ℕ) → m ≡ n + p → P p) → P (m ∸ n)
 diffSplit P zero    zero    _  pN = pN zero refl
 diffSplit P zero    (suc m) p0 _  = p0 (s≤s z≤n)
 diffSplit P (suc n) zero    p0 pN = pN (suc n) refl
@@ -111,13 +113,22 @@ p1-dif : ∀ q n m → (q + n) ∸ (q + m) ≡ n ∸ m
 p1-dif zero    n m = refl
 p1-dif (suc k) n m = cong (λ x → x) (p1-dif k n m)
 
--- +∸-assoc : ∀ m n p → m + (suc n ∸ p) ≡ (m + suc n) ∸ p
--- +∸-assoc zero    _ _ = refl
--- +∸-assoc (suc m) n p =
---   begin
---     suc m + (suc n ∸ p) ≡⟨ refl ⟩
---     suc (m + (suc n ∸ p)) ≡⟨ cong suc (+∸-assoc m n p) ⟩
---     suc ((m + suc n) ∸ p) ≡⟨ {!!} ⟩
---     suc (m + suc n) ∸ p ≡⟨ refl ⟩
---     (suc m + suc n) ∸ p
---   ∎
+thm : ∀ n → 1 ≤ (2 ^ n) → 2 ^ (n + 1) ∸ 1 ≡ ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1)
+thm n 1≤2^n =
+  begin
+    2 ^ (n + 1) ∸ 1
+      ≡⟨ cong (λ x → x ∸ 1) (sym (p2 n)) ⟩
+    (2 ^ n) + (2 ^ n) ∸ 1
+      ≡⟨ +-∸-assoc (2 ^ n) 1≤2^n ⟩
+    (2 ^ n) + ((2 ^ n) ∸ 1)
+      ≡⟨ +-comm (2 ^ n) ((2 ^ n) ∸ 1) ⟩
+    ((2 ^ n) ∸ 1) + (2 ^ n)
+      ≡⟨ cong (λ x → ((2 ^ n) ∸ 1) + x) (sym (m+n∸n≡m (2 ^ n) 1)) ⟩
+    ((2 ^ n) ∸ 1) + ((2 ^ n) + 1 ∸ 1)
+      ≡⟨ cong (λ x → ((2 ^ n) ∸ 1) + (x ∸ 1)) (+-comm (2 ^ n) 1) ⟩
+    ((2 ^ n) ∸ 1) + (1 + (2 ^ n) ∸ 1)
+      ≡⟨ cong ((λ x → ((2 ^ n) ∸ 1) + x)) (+-∸-assoc 1 1≤2^n) ⟩
+    ((2 ^ n) ∸ 1) + (1 + ((2 ^ n) ∸ 1))
+      ≡⟨ +-assoc (((2 ^ n) ∸ 1)) 1 (((2 ^ n) ∸ 1)) ⟩
+    ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1)
+  ∎
