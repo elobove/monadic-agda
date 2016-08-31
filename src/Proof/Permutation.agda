@@ -4,6 +4,7 @@
 
 open import Abel.Category.Monad
 open import Proof.MonadNonDet
+open import Data.Nat
 
 module Proof.Permutation
   {M   : Set → Set}
@@ -23,10 +24,10 @@ open MonadNonDet Mnd
 select : {A : Set} → List A → M (A x (List A))
 select []       = fail
 select (x ∷ xs) = return ⟨ x , xs ⟩ □
-  bind (λ ⟨ y , ys ⟩ → return ⟨ y , (x ∷ ys) ⟩) (select xs)
+  bind (λ ys → return ⟨ fst ys , (x ∷ snd ys) ⟩) (select xs)
 
 -- | Nondeterministically generates a permutation of a (finite) list
-perms : {A : Set} → List A → M (List A)
-perms [] = return []
-perms xs =
-  select xs >>= λ ⟨ y , ys ⟩ → (perms ys >>= (λ zs → return (y ∷ zs)))
+perms : {A : Set} → List A → ℕ → M (List A)
+perms _  zero    = return []
+perms xs (suc n) =
+  select xs >>= λ ys → (perms (snd ys) n >>= (λ zs → return (fst ys ∷ zs)))
