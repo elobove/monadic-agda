@@ -8,6 +8,8 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 open import Data.Nat
 open import Data.Bool
 open import Data.Nat.Properties
+open ≤-Reasoning
+  renaming (begin_ to start_; _∎ to _□; _≡⟨_⟩_ to _≡⟨_⟩'_)
 
 -- | Exponentiation operation
 _^_ : ℕ → ℕ → ℕ
@@ -112,6 +114,50 @@ p2 (suc n) =
 p1-dif : ∀ q n m → (q + n) ∸ (q + m) ≡ n ∸ m
 p1-dif zero    n m = refl
 p1-dif (suc k) n m = cong (λ x → x) (p1-dif k n m)
+
+-- p3 : ∀ n → n ∸ n ≡ zero
+-- p3 zero    = refl
+-- p3 (suc n) = p3 n
+
+-- p4 : ∀ n → n + n ∸ n ≡  n
+-- p4 zero = refl
+-- p4 (suc n) =
+--   begin
+--     suc n + suc n ∸ suc n ≡⟨ cong {!λ x → suc n + x!} (p3 (suc n)) ⟩
+--     (suc n) + zero ≡⟨ +-rightIdentity (suc n) ⟩
+--     suc n
+--   ∎
+
+≤-steps2 : ∀ i j k → (i ≤ k + j) ≡ (i ≤ j + k)
+≤-steps2 i j k = cong (λ x → i ≤ x) (+-comm k j)
+
+Sm≤Sn→m≤n : ∀ {m n} → suc m ≤ suc n → m ≤ n
+Sm≤Sn→m≤n le = cancel-+-left-≤ (suc zero) le
+
+foo : ∀ m n → zero < n → m ≤ m * n
+foo zero    n l = z≤n
+foo (suc m) n l = {!!}
+
+-- 1≤2^n : ∀ n → 1 ≤ (2 ^ n)
+-- 1≤2^n zero    = s≤s z≤n
+-- 1≤2^n (suc n) = ≤-steps {!(2 ^ n)!} (1≤2^n n)
+
+1≤2^n : ∀ n → 1 ≤ (2 ^ n)
+1≤2^n zero    = s≤s z≤n
+1≤2^n (suc n) = start
+  1 ≤⟨ s≤s z≤n ⟩
+  2 ≤⟨ {!!} ⟩
+  2 ^ (suc n) □
+
+-- 1≤2^n : ∀ n → 1 ≤ (2 ^ n)
+-- 1≤2^n zero    = s≤s z≤n
+-- 1≤2^n (suc n) = tr (1≤2^n n)
+--   (begin
+--     1 ≤ (2 ^ n) ≡⟨ {!!} ⟩
+--     2 * 1 ≤ (2 ^ n) * 2 ≡⟨ {!!} ⟩
+--     2 ≤ (2 ^ suc n) ≡⟨ {!!} ⟩
+--     1 ≤ (2 ^ suc n)
+--   ∎)
 
 thm : ∀ n → 1 ≤ (2 ^ n) → 2 ^ (n + 1) ∸ 1 ≡ ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1)
 thm n 1≤2^n =
