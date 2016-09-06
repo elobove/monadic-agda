@@ -54,8 +54,6 @@ rep-mn (suc m) n mx =
     where f = λ x → bind (λ _ → x) mx
 
 -- | Verification of hanoi
-postulate thm : ∀ n → ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1) ≡ 2 ^ (n + 1) ∸ 1
-
 test : ∀ n → hanoi n ≡ rep ((2 ^ n) ∸ 1) tick
 test zero    = refl
 test (suc n) =
@@ -69,7 +67,7 @@ test (suc n) =
     (rep (((2 ^ n) ∸ 1) + 1) tick >> rep ((2 ^ n) ∸ 1) tick)
       ≡⟨ sym (rep-mn (((2 ^ n) ∸ 1) + 1) ((2 ^ n) ∸ 1) tick) ⟩
     rep (((2 ^ n)  ∸ 1) + 1 + ((2 ^ n) ∸ 1)) tick
-      ≡⟨ cong (λ x → rep x tick) (thm n) ⟩
+      ≡⟨ cong (λ x → rep x tick) (sym (thm n)) ⟩
     rep ((2 ^ (n + 1)) ∸ 1) tick
       ≡⟨ cong (λ x → rep ((2 ^ x) ∸ 1) tick) (sym (succ n)) ⟩
     rep ((2 ^ (suc n)) ∸ 1) tick

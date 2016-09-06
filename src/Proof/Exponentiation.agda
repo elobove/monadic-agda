@@ -56,10 +56,6 @@ x+Sy≡S[x+y] (suc m) n = cong suc (x+Sy≡S[x+y] m n)
 +-assoc zero    _ _ = refl
 +-assoc (suc m) n p = cong suc (+-assoc m n p)
 
-succ : ∀ n → suc n ≡ n + 1
-succ zero    = refl
-succ (suc n) = cong suc (succ n)
-
 -- | Distributive property
 left-dist : ∀ m n p → m * (n + p) ≡ m * n + m * p
 left-dist zero    _ _ = refl
@@ -80,14 +76,10 @@ left-dist (suc m) n p =
     suc m * n + suc m * p
   ∎
 
--- | Split rule of Natural number subtraction
-diffSplit : ∀ (P : ℕ → Set) → (m n : ℕ) → (m < n → P 0) →
-            (∀ (p : ℕ) → m ≡ n + p → P p) → P (m ∸ n)
-diffSplit P zero    zero    _  pN = pN zero refl
-diffSplit P zero    (suc m) p0 _  = p0 (s≤s z≤n)
-diffSplit P (suc n) zero    p0 pN = pN (suc n) refl
-diffSplit P (suc n) (suc m) p0 pN =
-  diffSplit P n m (λ z → p0 (s≤s z)) (λ p z → pN p (cong suc z))
+-- | Rewrite suc n
+succ : ∀ n → suc n ≡ n + 1
+succ zero    = refl
+succ (suc n) = cong suc (succ n)
 
 2n≡n+n : ∀ n → 2 * n ≡ n + n
 2n≡n+n zero    = refl
@@ -98,74 +90,41 @@ diffSplit P (suc n) (suc m) p0 pN =
     suc n + suc n
   ∎
 
-p1 : ∀ n → n ^ 2 ≡ n * n
-p1 zero    = refl
-p1 (suc n) = cong (λ x → suc n * x) (*-rightIdentity (suc n))
-
-p2 : ∀ n → (2 ^ n) + (2 ^ n) ≡ 2 ^ (n + 1)
-p2 zero    = refl
-p2 (suc n) =
+suc-^ : ∀ n → (2 ^ n) + (2 ^ n) ≡ 2 ^ (n + 1)
+suc-^ zero    = refl
+suc-^ (suc n) =
   begin
     (2 ^ suc n) + (2 ^ suc n) ≡⟨ sym (2n≡n+n (2 ^ suc n)) ⟩
     2 ^ (suc (suc n))         ≡⟨ cong (λ x → 2 ^ x) (succ (suc n)) ⟩
     2 ^ (suc n + 1)
   ∎
 
-p1-dif : ∀ q n m → (q + n) ∸ (q + m) ≡ n ∸ m
-p1-dif zero    n m = refl
-p1-dif (suc k) n m = cong (λ x → x) (p1-dif k n m)
-
--- p3 : ∀ n → n ∸ n ≡ zero
--- p3 zero    = refl
--- p3 (suc n) = p3 n
-
--- p4 : ∀ n → n + n ∸ n ≡  n
--- p4 zero = refl
--- p4 (suc n) =
---   begin
---     suc n + suc n ∸ suc n ≡⟨ cong {!λ x → suc n + x!} (p3 (suc n)) ⟩
---     (suc n) + zero ≡⟨ +-rightIdentity (suc n) ⟩
---     suc n
---   ∎
-
-≤-steps2 : ∀ i j k → (i ≤ k + j) ≡ (i ≤ j + k)
-≤-steps2 i j k = cong (λ x → i ≤ x) (+-comm k j)
-
-Sm≤Sn→m≤n : ∀ {m n} → suc m ≤ suc n → m ≤ n
-Sm≤Sn→m≤n le = cancel-+-left-≤ (suc zero) le
-
-foo : ∀ m n → zero < n → m ≤ m * n
-foo zero    n l = z≤n
-foo (suc m) n l = {!!}
-
--- 1≤2^n : ∀ n → 1 ≤ (2 ^ n)
--- 1≤2^n zero    = s≤s z≤n
--- 1≤2^n (suc n) = ≤-steps {!(2 ^ n)!} (1≤2^n n)
+n≡m→n≤m : ∀ n {m} → n ≡ m → n ≤ m
+n≡m→n≤m zero    refl = z≤n
+n≡m→n≤m (suc n) refl = s≤s (n≡m→n≤m n refl)
 
 1≤2^n : ∀ n → 1 ≤ (2 ^ n)
 1≤2^n zero    = s≤s z≤n
-1≤2^n (suc n) = start
-  1 ≤⟨ s≤s z≤n ⟩
-  2 ≤⟨ {!!} ⟩
-  2 ^ (suc n) □
+1≤2^n (suc n) =
+  start
+    1
+      ≤⟨ 1≤2^n n ⟩
+    (2 ^ n)
+      ≤⟨ n≤m+n (2 ^ n) (2 ^ n) ⟩
+    (2 ^ n) + (2 ^ n)
+      ≤⟨ n≡m→n≤m ((2 ^ n) + (2 ^ n)) (suc-^ n) ⟩
+    2 ^ (n + 1)
+      ≤⟨ n≡m→n≤m (2 ^ (n + 1)) (cong (λ x → 2 ^ x) (sym (succ n))) ⟩
+    2 ^ (suc n)
+  □
 
--- 1≤2^n : ∀ n → 1 ≤ (2 ^ n)
--- 1≤2^n zero    = s≤s z≤n
--- 1≤2^n (suc n) = tr (1≤2^n n)
---   (begin
---     1 ≤ (2 ^ n) ≡⟨ {!!} ⟩
---     2 * 1 ≤ (2 ^ n) * 2 ≡⟨ {!!} ⟩
---     2 ≤ (2 ^ suc n) ≡⟨ {!!} ⟩
---     1 ≤ (2 ^ suc n)
---   ∎)
-
-thm : ∀ n → 1 ≤ (2 ^ n) → 2 ^ (n + 1) ∸ 1 ≡ ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1)
-thm n 1≤2^n =
+thm : ∀ n → 2 ^ (n + 1) ∸ 1 ≡ ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1)
+thm n =
   begin
     2 ^ (n + 1) ∸ 1
-      ≡⟨ cong (λ x → x ∸ 1) (sym (p2 n)) ⟩
+      ≡⟨ cong (λ x → x ∸ 1) (sym (suc-^ n)) ⟩
     (2 ^ n) + (2 ^ n) ∸ 1
-      ≡⟨ +-∸-assoc (2 ^ n) 1≤2^n ⟩
+      ≡⟨ +-∸-assoc (2 ^ n) (1≤2^n n) ⟩
     (2 ^ n) + ((2 ^ n) ∸ 1)
       ≡⟨ +-comm (2 ^ n) ((2 ^ n) ∸ 1) ⟩
     ((2 ^ n) ∸ 1) + (2 ^ n)
@@ -173,8 +132,29 @@ thm n 1≤2^n =
     ((2 ^ n) ∸ 1) + ((2 ^ n) + 1 ∸ 1)
       ≡⟨ cong (λ x → ((2 ^ n) ∸ 1) + (x ∸ 1)) (+-comm (2 ^ n) 1) ⟩
     ((2 ^ n) ∸ 1) + (1 + (2 ^ n) ∸ 1)
-      ≡⟨ cong ((λ x → ((2 ^ n) ∸ 1) + x)) (+-∸-assoc 1 1≤2^n) ⟩
+      ≡⟨ cong ((λ x → ((2 ^ n) ∸ 1) + x)) (+-∸-assoc 1 (1≤2^n n)) ⟩
     ((2 ^ n) ∸ 1) + (1 + ((2 ^ n) ∸ 1))
       ≡⟨ +-assoc (((2 ^ n) ∸ 1)) 1 (((2 ^ n) ∸ 1)) ⟩
     ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1)
   ∎
+
+-- | Some extra properties
+n^2≡n*n : ∀ n → n ^ 2 ≡ n * n
+n^2≡n*n zero    = refl
+n^2≡n*n (suc n) = cong (λ x → suc n * x) (*-rightIdentity (suc n))
+
+p1-dif : ∀ q n m → (q + n) ∸ (q + m) ≡ n ∸ m
+p1-dif zero    n m = refl
+p1-dif (suc k) n m = cong (λ x → x) (p1-dif k n m)
+
+Sm≤Sn→m≤n : ∀ {m n} → suc m ≤ suc n → m ≤ n
+Sm≤Sn→m≤n le = cancel-+-left-≤ (suc zero) le
+
+-- | Split rule of Natural number subtraction
+diffSplit : ∀ (P : ℕ → Set) → (m n : ℕ) → (m < n → P 0) →
+            (∀ (p : ℕ) → m ≡ n + p → P p) → P (m ∸ n)
+diffSplit P zero    zero    _  pN = pN zero refl
+diffSplit P zero    (suc m) p0 _  = p0 (s≤s z≤n)
+diffSplit P (suc n) zero    p0 pN = pN (suc n) refl
+diffSplit P (suc n) (suc m) p0 pN =
+  diffSplit P n m (λ z → p0 (s≤s z)) (λ p z → pN p (cong suc z))
