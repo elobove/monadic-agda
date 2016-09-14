@@ -10,6 +10,9 @@ open import Data.Bool
 open import Data.Nat.Properties
 open ≤-Reasoning
   renaming (begin_ to start_; _∎ to _□; _≡⟨_⟩_ to _≡⟨_⟩'_)
+open import Relation.Binary
+open DecTotalOrder decTotalOrder
+ using () renaming (reflexive to ≤-refl; trans to ≤-trans)
 
 -- | Exponentiation operation
 _^_ : ℕ → ℕ → ℕ
@@ -99,24 +102,10 @@ suc-^ (suc n) =
     2 ^ (suc n + 1)
   ∎
 
-n≡m→n≤m : ∀ n {m} → n ≡ m → n ≤ m
-n≡m→n≤m zero    refl = z≤n
-n≡m→n≤m (suc n) refl = s≤s (n≡m→n≤m n refl)
-
+-- | Using 1 ≤ (2 ^ n) ≤ (2 ^ suc n)
 1≤2^n : ∀ n → 1 ≤ (2 ^ n)
 1≤2^n zero    = s≤s z≤n
-1≤2^n (suc n) =
-  start
-    1
-      ≤⟨ 1≤2^n n ⟩
-    (2 ^ n)
-      ≤⟨ n≤m+n (2 ^ n) (2 ^ n) ⟩
-    (2 ^ n) + (2 ^ n)
-      ≤⟨ n≡m→n≤m ((2 ^ n) + (2 ^ n)) (suc-^ n) ⟩
-    2 ^ (n + 1)
-      ≤⟨ n≡m→n≤m (2 ^ (n + 1)) (cong (λ x → 2 ^ x) (sym (succ n))) ⟩
-    2 ^ (suc n)
-  □
+1≤2^n (suc n) = ≤-trans (1≤2^n n) (m≤m+n _ _)
 
 thm : ∀ n → 2 ^ (n + 1) ∸ 1 ≡ ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1)
 thm n =
