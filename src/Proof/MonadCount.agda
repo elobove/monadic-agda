@@ -17,3 +17,6 @@ record MonadCount {M : Set → Set} (monad : Monad'' M) : Set₁ where
 
   field
     tick : M ⊤
+
+  skip : M ⊤
+  skip = return tt

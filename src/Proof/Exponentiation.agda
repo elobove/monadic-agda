@@ -4,10 +4,11 @@
 
 module Proof.Exponentiation where
 
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 open import Data.Nat
 open import Data.Bool
 open import Data.Nat.Properties
+open import Relation.Binary.PropositionalEquality.Core using (sym)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 open ≤-Reasoning
   renaming (begin_ to start_; _∎ to _□; _≡⟨_⟩_ to _≡⟨_⟩'_)
 open import Relation.Binary
@@ -20,10 +21,6 @@ x ^ zero    = 1
 x ^ (suc n) = x * (x ^ n)
 
 open Relation.Binary.PropositionalEquality.≡-Reasoning
-
--- | Symmetry
-sym : {A : Set}{x y : A} → x ≡ y → y ≡ x
-sym refl = refl
 
 -- | Right identity for addition
 +-rightIdentity : ∀ n → n + zero ≡ n

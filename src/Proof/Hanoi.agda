@@ -13,15 +13,11 @@ module Proof.Hanoi
 
 open import Data.Nat
 open import Data.Unit
-open import Function using (_∘_)
 open import Proof.Exponentiation
+open import Relation.Binary.PropositionalEquality.Core using (sym)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
 open Monad'' Mm
-
-skip : M ⊤
-skip = return tt
-
 open MonadCount Mc
 
 -- | Solves the Towers of Hanoi problem. It ticks the counter once for

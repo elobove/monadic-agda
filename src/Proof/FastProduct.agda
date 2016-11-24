@@ -62,25 +62,42 @@ pop-if :
 pop-if _ true  = refl
 pop-if _ false = refl
 
+-- | If the head of a list is zero then the product of the list is zero
+product0ℤ : (xs : List ℤ) → (productℤ (0ℤ ∷ xs)) ≡ 0ℤ
+product0ℤ []        = refl
+product0ℤ (_ ∷ xs) = product0ℤ xs
+
+foo1 : (xs : List ℤ) → (elem 0ℤ xs) ≡ true → (productℤ xs) ≡ 0ℤ
+foo1 []        = λ ()
+foo1 (x ∷ xs) with x
+... | 0ℤ = {!!}
+
+
+foo : (xs : List ℤ) → (if (elem 0ℤ xs) then 0ℤ else (productℤ xs)) ≡ (productℤ xs)
+foo []         = refl
+foo (x ∷ xs) with (elem 0ℤ (x ∷ xs))
+... | true   = if (x == 0ℤ) then {!foo1 xs!} else {!!}
+... | false  = refl
+
 -- | Proof: fastProduct is pure
-pureFastProd : (xs : List ℤ) → fastProd xs ≡ return (productℤ xs)
-pureFastProd xs =
-  begin
-    catch (work xs) (return 0ℤ)
-      ≡⟨ cong (λ x → catch x (return 0ℤ)) refl ⟩
-    catch (if (elem 0ℤ xs) then fail else (return (productℤ xs))) (return 0ℤ)
-      ≡⟨ pop-if catch (elem 0ℤ xs) ⟩
-    (if (elem 0ℤ xs) then mx else my)
-      ≡⟨ cong (λ x → (if (elem 0ℤ xs) then x else my))
-               (catch-fail₁ (return 0ℤ)) ⟩
-    (if (elem 0ℤ xs) then (return 0ℤ) else my)
-      ≡⟨ cong (λ x → (if (elem 0ℤ xs) then (return 0ℤ) else x))
-               (catch-return (productℤ xs) (return 0ℤ)) ⟩
-    (if (elem 0ℤ xs) then (return 0ℤ) else (return (productℤ xs)))
-      ≡⟨ sym (push-function-into-if return (elem 0ℤ xs)) ⟩
-    return (if (elem 0ℤ xs) then 0ℤ else (productℤ xs))
-      ≡⟨ cong (λ x → return x) {!!} ⟩
-    return (productℤ xs)
-  ∎
-    where mx = catch fail (return 0ℤ)
-          my = catch (return (productℤ xs)) (return 0ℤ)
+-- pureFastProd : (xs : List ℤ) → fastProd xs ≡ return (productℤ xs)
+-- pureFastProd xs =
+--   begin
+--     catch (work xs) (return 0ℤ)
+--       ≡⟨ cong (λ x → catch x (return 0ℤ)) refl ⟩
+--     catch (if (elem 0ℤ xs) then fail else (return (productℤ xs))) (return 0ℤ)
+--       ≡⟨ pop-if catch (elem 0ℤ xs) ⟩
+--     (if (elem 0ℤ xs) then mx else my)
+--       ≡⟨ cong (λ x → (if (elem 0ℤ xs) then x else my))
+--                (catch-fail₁ (return 0ℤ)) ⟩
+--     (if (elem 0ℤ xs) then (return 0ℤ) else my)
+--       ≡⟨ cong (λ x → (if (elem 0ℤ xs) then (return 0ℤ) else x))
+--                (catch-return (productℤ xs) (return 0ℤ)) ⟩
+--     (if (elem 0ℤ xs) then (return 0ℤ) else (return (productℤ xs)))
+--       ≡⟨ sym (push-function-into-if return (elem 0ℤ xs)) ⟩
+--     return (if (elem 0ℤ xs) then 0ℤ else (productℤ xs))
+--       ≡⟨ cong (λ x → return x) {!!} ⟩
+--     return (productℤ xs)
+--   ∎
+--     where mx = catch fail (return 0ℤ)
+--           my = catch (return (productℤ xs)) (return 0ℤ)

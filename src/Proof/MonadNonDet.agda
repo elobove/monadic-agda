@@ -20,9 +20,9 @@ record MonadNonDet {M : Set → Set} (monad : Monad'' M) : Set₁ where
   field
     fail : {A : Set} → M A
 
-    -- fail-zero-seq : {A : Set} (m : M A) → (fail >> m) ≡ fail
+    -- fail-zero-seq : {A : Set} (m : M A) → (fail >> m) ≡ m
 
-    _□_           : {A : Set} → M A → M A → M A
+    _□_          : {A : Set} → M A → M A → M A
 
     choice-assoc  : {A : Set} (m n p : M A) →
                    (m □ n) □ p ≡ m □ (n □ p)

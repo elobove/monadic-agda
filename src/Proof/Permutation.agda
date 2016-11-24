@@ -21,7 +21,7 @@ open MonadNonDet Mnd
 -- | Takes a list and nondeterministically chooses an element,
 -- | returning that element and the remaining list; it fails on the empty list
 select : {A : Set} → List A → M (A x (List A))
-select []       = fail
+select []        = fail
 select (x ∷ xs) = return ⟨ x , xs ⟩ □
   bind (λ ys → return ⟨ fst ys , (x ∷ snd ys) ⟩) (select xs)
 
