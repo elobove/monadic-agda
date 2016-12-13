@@ -7,6 +7,7 @@ module Proof.Exponentiation where
 open import Data.Nat
 open import Data.Bool
 open import Data.Nat.Properties
+open import Data.Nat.Properties.Simple
 open import Relation.Binary.PropositionalEquality.Core using (sym)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 open ≤-Reasoning
@@ -22,11 +23,6 @@ x ^ (suc n) = x * (x ^ n)
 
 open Relation.Binary.PropositionalEquality.≡-Reasoning
 
--- | Right identity for addition
-+-rightIdentity : ∀ n → n + zero ≡ n
-+-rightIdentity zero    = refl
-+-rightIdentity (suc n) = cong suc ( +-rightIdentity n)
-
 -- | Rigth identity for multiplication
 *-rightIdentity : ∀ n → n * 1 ≡ n
 *-rightIdentity  zero   = refl
@@ -41,21 +37,6 @@ x+Sy≡S[x+y] : ∀ m n → m + suc n ≡ suc (m + n)
 x+Sy≡S[x+y] zero    n  = refl
 x+Sy≡S[x+y] (suc m) n = cong suc (x+Sy≡S[x+y] m n)
 
--- | Commutative property of addition
-+-comm : ∀ m n → m + n ≡ n + m
-+-comm zero    n = sym (+-rightIdentity n)
-+-comm (suc m) n =
-  begin
-    suc (m + n) ≡⟨ cong suc (+-comm m n) ⟩
-    suc (n + m) ≡⟨ sym (x+Sy≡S[x+y] n m) ⟩
-    n + suc m
-  ∎
-
--- | Associative property of addition
-+-assoc : ∀ m n p → m + (n + p) ≡ (m + n) + p
-+-assoc zero    _ _ = refl
-+-assoc (suc m) n p = cong suc (+-assoc m n p)
-
 -- | Distributive property
 left-dist : ∀ m n p → m * (n + p) ≡ m * n + m * p
 left-dist zero    _ _ = refl
@@ -66,13 +47,13 @@ left-dist (suc m) n p =
     (n + p) + (m * n + m * p)
       ≡⟨ cong (λ x → x + (m * n + m * p)) (+-comm n p) ⟩
     (p + n) + (m * n + m * p)
-      ≡⟨ +-assoc (p + n) (m * n) (m * p)⟩
+      ≡⟨ sym (+-assoc (p + n) (m * n) (m * p)) ⟩
     ((p + n) + m * n) + m * p
-      ≡⟨ cong (λ x → x + m * p) (sym (+-assoc p n (m * n))) ⟩
+      ≡⟨ cong (λ x → x + m * p) (+-assoc p n (m * n)) ⟩
     (p + (suc m * n)) + m * p
       ≡⟨ cong (λ x → x + m * p) (+-comm p (suc m * n))  ⟩
     ((suc m * n) + p) + m * p
-      ≡⟨ sym (+-assoc (suc m * n) p (m * p)) ⟩
+      ≡⟨ +-assoc (suc m * n) p (m * p) ⟩
     suc m * n + suc m * p
   ∎
 
@@ -85,7 +66,7 @@ succ (suc n) = cong suc (succ n)
 2n≡n+n zero    = refl
 2n≡n+n (suc n) =
   begin
-    suc n + (suc n + zero) ≡⟨ +-assoc (suc n) (suc n) zero ⟩
+    suc n + (suc n + zero) ≡⟨ sym (+-assoc (suc n) (suc n) zero) ⟩
     (suc n + suc n) + zero ≡⟨ +-comm (suc n + suc n) zero ⟩
     suc n + suc n
   ∎
@@ -120,7 +101,7 @@ thm n =
     ((2 ^ n) ∸ 1) + (1 + (2 ^ n) ∸ 1)
       ≡⟨ cong ((λ x → ((2 ^ n) ∸ 1) + x)) (+-∸-assoc 1 (1≤2^n n)) ⟩
     ((2 ^ n) ∸ 1) + (1 + ((2 ^ n) ∸ 1))
-      ≡⟨ +-assoc (((2 ^ n) ∸ 1)) 1 (((2 ^ n) ∸ 1)) ⟩
+      ≡⟨ sym (+-assoc (((2 ^ n) ∸ 1)) 1 (((2 ^ n) ∸ 1))) ⟩
     ((2 ^ n) ∸ 1) + 1 + ((2 ^ n) ∸ 1)
   ∎
 
