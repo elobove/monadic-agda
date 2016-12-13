@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 -- | Fast Product: An exception example. Multiplies the elements of a list of
--- | integers, but raises an exception if it finds a zero, subsequently
+-- | naturals, but raises an exception if it finds a zero, subsequently
 -- | catching the exception and returning zero for the overall product
 ------------------------------------------------------------------------------
 
@@ -15,13 +15,15 @@ module Proof.FastProduct
   (Me  : MonadExcept Mnd)
   where
 
-open import Data.Integer
+open import Data.Nat
+open import Data.Nat.Properties.Simple
 open import Data.List
 open import Data.Bool hiding (_≟_)
 open import Data.Bool.Properties
 open import Relation.Nullary.Decidable
 open import Relation.Binary.PropositionalEquality.Core using (sym)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
+open import Proof.Exponentiation
 
 open Monad''     Mm
 open MonadNonDet Mnd
@@ -29,75 +31,78 @@ open MonadExcept Me
 open Relation.Binary.PropositionalEquality.≡-Reasoning
 
 -- | Boolean equality for Integers
-_==_ : ℤ → ℤ → Bool
+_==_ : ℕ → ℕ → Bool
 i₁ == i₂ = ⌊ i₁ ≟ i₂ ⌋
 
--- | Integer zero
-0ℤ : ℤ
-0ℤ = ℤ.pos 0
-
---| Integer one
-1ℤ : ℤ
-1ℤ = ℤ.pos 1
-
--- | Checks if an integer is on a list of integers
-elem : ℤ → List ℤ → Bool
+-- | Checks if a number is on a list
+elem : ℕ → List ℕ → Bool
 elem x []        = false
 elem x (y ∷ ys) = if (x == y) then true else (elem x ys)
 
--- | Computes the product of a list of integers
-productℤ : List ℤ → ℤ
-productℤ = foldl _*_ 1ℤ
+-- | Computes the product of a list of natural numbers
+productℕ : List ℕ → ℕ
+productℕ []        = 1
+productℕ (x ∷ xs) = x * productℕ xs
 
-work : List ℤ → M ℤ
-work xs = if (elem 0ℤ xs) then fail else (return (productℤ xs))
+-- | If the product of the list is zero then the product of that list with a new
+-- | element is still zero
+product0₁ : ∀ n → (xs : List ℕ) → (productℕ xs) ≡ 0 → (productℕ (n ∷ xs)) ≡ 0
+product0₁ n xs eq =
+  begin
+    productℕ (n ∷ xs) ≡⟨ refl ⟩
+    n * productℕ xs    ≡⟨ cong (λ y → n * y) eq ⟩
+    n * 0               ≡⟨ *-comm n 0 ⟩
+    0
+  ∎
 
-fastProd : List ℤ → M ℤ
-fastProd xs = catch (work xs) (return 0ℤ)
+-- | If there is a zero on a list its product is zero
+product0₂ : (xs : List ℕ) → (elem 0 xs) ≡ true → (productℕ xs) ≡ 0
+product0₂ []               = λ ()
+product0₂ (zero ∷ xs)  eq = refl
+product0₂ (suc n ∷ xs) eq =  product0₁ (suc n)  xs (product0₂ xs eq)
 
---| Pop an if_then_else_ statement from a parameter of a function
+if-cong : {a c d : ℕ} {b : Bool} → (b ≡ true → a ≡ d) →
+          (b ≡ false → c ≡ d) → (if b then a else c) ≡ d
+if-cong {b = true } t _ = t refl
+if-cong {b = false} _ f = f refl
+
+-- | Redundant if statement
+extra-if : (xs : List ℕ) →
+           (if (elem 0 xs) then 0 else (productℕ xs)) ≡ (productℕ xs)
+extra-if xs = if-cong (λ p → sym (product0₂ xs p)) (λ _ → refl)
+
+--| Pop an if statement from a parameter of a function
 pop-if :
   ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} (f : A → B → C) x {y z w} →
   f (if x then y else z) w ≡ (if x then (f y w) else (f z w))
 pop-if _ true  = refl
 pop-if _ false = refl
 
--- | If the head of a list is zero then the product of the list is zero
-product0ℤ : (xs : List ℤ) → (productℤ (0ℤ ∷ xs)) ≡ 0ℤ
-product0ℤ []        = refl
-product0ℤ (_ ∷ xs) = product0ℤ xs
-
-foo1 : (xs : List ℤ) → (elem 0ℤ xs) ≡ true → (productℤ xs) ≡ 0ℤ
-foo1 []        = λ ()
-foo1 (x ∷ xs) with x
-... | 0ℤ = {!!}
-
-
-foo : (xs : List ℤ) → (if (elem 0ℤ xs) then 0ℤ else (productℤ xs)) ≡ (productℤ xs)
-foo []         = refl
-foo (x ∷ xs) with (elem 0ℤ (x ∷ xs))
-... | true   = if (x == 0ℤ) then {!foo1 xs!} else {!!}
-... | false  = refl
-
 -- | Proof: fastProduct is pure
--- pureFastProd : (xs : List ℤ) → fastProd xs ≡ return (productℤ xs)
--- pureFastProd xs =
---   begin
---     catch (work xs) (return 0ℤ)
---       ≡⟨ cong (λ x → catch x (return 0ℤ)) refl ⟩
---     catch (if (elem 0ℤ xs) then fail else (return (productℤ xs))) (return 0ℤ)
---       ≡⟨ pop-if catch (elem 0ℤ xs) ⟩
---     (if (elem 0ℤ xs) then mx else my)
---       ≡⟨ cong (λ x → (if (elem 0ℤ xs) then x else my))
---                (catch-fail₁ (return 0ℤ)) ⟩
---     (if (elem 0ℤ xs) then (return 0ℤ) else my)
---       ≡⟨ cong (λ x → (if (elem 0ℤ xs) then (return 0ℤ) else x))
---                (catch-return (productℤ xs) (return 0ℤ)) ⟩
---     (if (elem 0ℤ xs) then (return 0ℤ) else (return (productℤ xs)))
---       ≡⟨ sym (push-function-into-if return (elem 0ℤ xs)) ⟩
---     return (if (elem 0ℤ xs) then 0ℤ else (productℤ xs))
---       ≡⟨ cong (λ x → return x) {!!} ⟩
---     return (productℤ xs)
---   ∎
---     where mx = catch fail (return 0ℤ)
---           my = catch (return (productℤ xs)) (return 0ℤ)
+work : List ℕ → M ℕ
+work xs = if (elem 0 xs) then fail else (return (productℕ xs))
+
+fastProd : List ℕ → M ℕ
+fastProd xs = catch (work xs) (return 0)
+
+pureFastProd : (xs : List ℕ) → fastProd xs ≡ return (productℕ xs)
+pureFastProd xs =
+  begin
+    catch (work xs) (return 0)
+      ≡⟨ cong (λ x → catch x (return 0)) refl ⟩
+    catch (if (elem 0 xs) then fail else (return (productℕ xs))) (return 0)
+      ≡⟨ pop-if catch (elem 0 xs) ⟩
+    (if (elem 0 xs) then mx else my)
+      ≡⟨ cong (λ x → (if (elem 0 xs) then x else my))
+               (catch-fail₁ (return 0)) ⟩
+    (if (elem 0 xs) then (return 0) else my)
+      ≡⟨ cong (λ x → (if (elem 0 xs) then (return 0) else x))
+               (catch-return (productℕ xs) (return 0)) ⟩
+    (if (elem 0 xs) then (return 0) else (return (productℕ xs)))
+      ≡⟨ sym (push-function-into-if return (elem 0 xs)) ⟩
+    return (if (elem 0 xs) then 0 else (productℕ xs))
+      ≡⟨ cong (λ x → return x) (extra-if xs) ⟩
+    return (productℕ xs)
+  ∎
+    where mx = catch fail (return 0)
+          my = catch (return (productℕ xs)) (return 0)
