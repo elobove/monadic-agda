@@ -11,3 +11,6 @@ import Proof.Hanoi
 
 -- | Using nondeterministic monad
 import Proof.Permutation
+
+-- | Using exception monad
+import Proof.FastProduct

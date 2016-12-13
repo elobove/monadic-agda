@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 -- | Fast Product: An exception example. Multiplies the elements of a list of
--- | naturals, but raises an exception if it finds a zero, subsequently
+-- | natural numbers, but raises an exception if it finds a zero, subsequently
 -- | catching the exception and returning zero for the overall product
 ------------------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ open MonadNonDet Mnd
 open MonadExcept Me
 open Relation.Binary.PropositionalEquality.≡-Reasoning
 
--- | Boolean equality for Integers
+-- | Boolean equality for Natural numbers
 _==_ : ℕ → ℕ → Bool
 i₁ == i₂ = ⌊ i₁ ≟ i₂ ⌋
 
@@ -39,7 +39,7 @@ elem : ℕ → List ℕ → Bool
 elem x []        = false
 elem x (y ∷ ys) = if (x == y) then true else (elem x ys)
 
--- | Computes the product of a list of natural numbers
+-- | Computes the product of a list of Natural numbers
 productℕ : List ℕ → ℕ
 productℕ []        = 1
 productℕ (x ∷ xs) = x * productℕ xs
