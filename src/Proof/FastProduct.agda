@@ -23,7 +23,6 @@ open import Data.Bool.Properties
 open import Relation.Nullary.Decidable
 open import Relation.Binary.PropositionalEquality.Core using (sym)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
-open import Proof.Exponentiation
 
 open Monad''     Mm
 open MonadNonDet Mnd
@@ -49,7 +48,6 @@ productℕ (x ∷ xs) = x * productℕ xs
 product0₁ : ∀ n → (xs : List ℕ) → (productℕ xs) ≡ 0 → (productℕ (n ∷ xs)) ≡ 0
 product0₁ n xs eq =
   begin
-    productℕ (n ∷ xs) ≡⟨ refl ⟩
     n * productℕ xs    ≡⟨ cong (λ y → n * y) eq ⟩
     n * 0               ≡⟨ *-comm n 0 ⟩
     0
@@ -59,17 +57,12 @@ product0₁ n xs eq =
 product0₂ : (xs : List ℕ) → (elem 0 xs) ≡ true → (productℕ xs) ≡ 0
 product0₂ []               = λ ()
 product0₂ (zero ∷ xs)  eq = refl
-product0₂ (suc n ∷ xs) eq =  product0₁ (suc n)  xs (product0₂ xs eq)
+product0₂ (suc n ∷ xs) eq =  product0₁ (suc n) xs (product0₂ xs eq)
 
 if-cong : {a c d : ℕ} {b : Bool} → (b ≡ true → a ≡ d) →
           (b ≡ false → c ≡ d) → (if b then a else c) ≡ d
 if-cong {b = true } t _ = t refl
 if-cong {b = false} _ f = f refl
-
--- | Redundant if statement
-extra-if : (xs : List ℕ) →
-           (if (elem 0 xs) then 0 else (productℕ xs)) ≡ (productℕ xs)
-extra-if xs = if-cong (λ p → sym (product0₂ xs p)) (λ _ → refl)
 
 --| Pop an if statement from a parameter of a function
 pop-if :
@@ -88,8 +81,6 @@ fastProd xs = catch (work xs) (return 0)
 pureFastProd : (xs : List ℕ) → fastProd xs ≡ return (productℕ xs)
 pureFastProd xs =
   begin
-    catch (work xs) (return 0)
-      ≡⟨ cong (λ x → catch x (return 0)) refl ⟩
     catch (if (elem 0 xs) then fail else (return (productℕ xs))) (return 0)
       ≡⟨ pop-if catch (elem 0 xs) ⟩
     (if (elem 0 xs) then mx else my)
@@ -101,8 +92,9 @@ pureFastProd xs =
     (if (elem 0 xs) then (return 0) else (return (productℕ xs)))
       ≡⟨ sym (push-function-into-if return (elem 0 xs)) ⟩
     return (if (elem 0 xs) then 0 else (productℕ xs))
-      ≡⟨ cong (λ x → return x) (extra-if xs) ⟩
+      ≡⟨ cong return extra-if ⟩
     return (productℕ xs)
   ∎
-    where mx = catch fail (return 0)
-          my = catch (return (productℕ xs)) (return 0)
+    where mx       = catch fail (return 0)
+          my       = catch (return (productℕ xs)) (return 0)
+          extra-if = if-cong (λ p → sym (product0₂ xs p)) (λ _ → refl)
