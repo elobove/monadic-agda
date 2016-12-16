@@ -4,7 +4,6 @@
 
 open import Abel.Category.Monad
 open import Proof.MonadNonDet
-open import Data.Nat
 
 module Proof.Permutation
   {M   : Set → Set}
@@ -12,6 +11,7 @@ module Proof.Permutation
   (Mnd : MonadNonDet Mm)
   where
 
+open import Data.Nat
 open import Data.List
 open import Proof.Data.Tuple
 

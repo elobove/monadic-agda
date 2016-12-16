@@ -48,8 +48,8 @@ productℕ (x ∷ xs) = x * productℕ xs
 product0₁ : ∀ n → (xs : List ℕ) → (productℕ xs) ≡ 0 → (productℕ (n ∷ xs)) ≡ 0
 product0₁ n xs eq =
   begin
-    n * productℕ xs    ≡⟨ cong (λ y → n * y) eq ⟩
-    n * 0               ≡⟨ *-comm n 0 ⟩
+    n * productℕ xs ≡⟨ cong (λ y → n * y) eq ⟩
+    n * 0            ≡⟨ *-comm n 0 ⟩
     0
   ∎
 
@@ -57,7 +57,7 @@ product0₁ n xs eq =
 product0₂ : (xs : List ℕ) → (elem 0 xs) ≡ true → (productℕ xs) ≡ 0
 product0₂ []               = λ ()
 product0₂ (zero ∷ xs)  eq = refl
-product0₂ (suc n ∷ xs) eq =  product0₁ (suc n) xs (product0₂ xs eq)
+product0₂ (suc n ∷ xs) eq = product0₁ (suc n) xs (product0₂ xs eq)
 
 if-cong : {a c d : ℕ} {b : Bool} → (b ≡ true → a ≡ d) →
           (b ≡ false → c ≡ d) → (if b then a else c) ≡ d
