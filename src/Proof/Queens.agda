@@ -85,17 +85,20 @@ empty : {A : Set} → Square (List A)
 empty = ⟨ [] , [] ⟩
 
 queens : ℕ → M (List ℤ)
-queens n = rs >>= λ x → guard (fst (safe₁ empty (place n x))) >> return x
+queens n = perms Mnd n q >>=
+  λ rs → guard (fst (safe₁ empty (place n rs))) >> return rs
   where
     q  = gen[ℤ] n
-    rs = perms Mnd n q
 
 
 -- | Statefully implementation
--- start₂ : MonadState (Square (List ℤ)) Mm → M Bool
--- start₂ = return true
+start₂ : M Bool
+start₂ = return true
 
--- step₂ : MonadState (Square (List ℤ)) M → M Bool
+step₂ : Square ℤ → M Bool → M Bool
+step₂ cr k = k >>= (λ b' → get >>=
+  (λ uds → let ⟨ b , uds' ⟩ = test cr uds
+            in put uds' >> return (b ∧ b')))
 
--- safe₂ : MonadState (Square (List ℤ)) M → List (Square ℤ) → M Bol
--- safe₂ = foldr step₂ start₂
+safe₂ : List (Square ℤ) → M Bool
+safe₂ = foldr step₂ start₂
