@@ -12,7 +12,6 @@ module Proof.Queens
   (Ms  : MonadState S Mm)
   where
 
-
 open import Data.List
 open import Data.Integer as ℤ
 open import Data.Nat hiding (_≟_)
@@ -22,6 +21,7 @@ open import Data.Bool.Properties
 open import Relation.Nullary.Decidable
 open import Proof.Data.Tuple
 open import Proof.Permutation
+open import Proof.MonadState
 
 open Monad'' Mm
 open MonadCount Mc
@@ -89,16 +89,3 @@ queens n = perms Mnd n q >>=
   λ rs → guard (fst (safe₁ empty (place n rs))) >> return rs
   where
     q  = gen[ℤ] n
-
-
--- | Statefully implementation
-start₂ : M Bool
-start₂ = return true
-
-step₂ : Square ℤ → M Bool → M Bool
-step₂ cr k = k >>= (λ b' → get >>=
-  (λ uds → let ⟨ b , uds' ⟩ = test cr uds
-            in put uds' >> return (b ∧ b')))
-
-safe₂ : List (Square ℤ) → M Bool
-safe₂ = foldr step₂ start₂
