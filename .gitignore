@@ -1,2 +1,10 @@
 *.agdai
 *.agda~
+*.aux
+*.log
+*.nav
+*.out
+*.pdf
+*.snm
+*.toc
+*.vrb
