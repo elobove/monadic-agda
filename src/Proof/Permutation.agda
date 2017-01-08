@@ -2,12 +2,12 @@
 -- | Permutation: Example of a nondeterministic program
 ------------------------------------------------------------------------------
 
-open import Abel.Category.Monad
+open import Proof.Monad
 open import Proof.MonadNonDet
 
 module Proof.Permutation
   {M   : Set → Set}
-  {Mm  : Monad'' M}
+  {Mm  : Monad M}
   (Mnd : MonadNonDet Mm)
   where
 
@@ -15,7 +15,7 @@ open import Data.Nat
 open import Data.List
 open import Proof.Data.Tuple
 
-open Monad'' Mm
+open Monad       Mm
 open MonadNonDet Mnd
 
 -- | Takes a list and nondeterministically chooses an element,

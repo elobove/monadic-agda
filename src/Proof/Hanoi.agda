@@ -2,12 +2,12 @@
 -- | Towers of Hanoi: A counter example
 ------------------------------------------------------------------------------
 
-open import Abel.Category.Monad
+open import Proof.Monad
 open import Proof.MonadCount
 
 module Proof.Hanoi
   {M  : Set → Set}
-  {Mm : Monad'' M}
+  {Mm : Monad M}
   (Mc : MonadCount Mm)
   where
 
@@ -17,7 +17,7 @@ open import Proof.Exponentiation
 open import Relation.Binary.PropositionalEquality.Core using (sym)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
-open Monad'' Mm
+open Monad      Mm
 open MonadCount Mc
 
 -- | Solves the Towers of Hanoi problem. It ticks the counter once for
@@ -50,24 +50,24 @@ rep-mn (suc m) n mx =
     where f = λ x → bind (λ _ → x) mx
 
 -- | Verification of hanoi
-test : ∀ n → hanoi n ≡ rep ((2 ^ n) ∸ 1) tick
-test zero    = refl
-test (suc n) =
+moves : ∀ n → hanoi n ≡ rep (2 ^ n ∸ 1) tick
+moves zero    = refl
+moves (suc n) =
   begin
     (hanoi n >> tick >> hanoi n)
-      ≡⟨ cong f (test n) ⟩
-    (rep ((2 ^ n) ∸ 1) tick >> tick >> rep ((2 ^ n) ∸ 1) tick)
+      ≡⟨ cong f (moves n) ⟩
+    (rep (2 ^ n ∸ 1) tick >> tick >> rep (2 ^ n ∸ 1) tick)
       ≡⟨ cong g (sym (rep-1 tick)) ⟩
-    (rep ((2 ^ n) ∸ 1) tick >> rep 1 tick >> rep ((2 ^ n) ∸ 1) tick)
-      ≡⟨ cong (λ x → x >> r) (sym (rep-mn ((2 ^ n) ∸ 1) 1 tick)) ⟩
-    (rep (((2 ^ n) ∸ 1) + 1) tick >> rep ((2 ^ n) ∸ 1) tick)
-      ≡⟨ sym (rep-mn (((2 ^ n) ∸ 1) + 1) ((2 ^ n) ∸ 1) tick) ⟩
-    rep (((2 ^ n)  ∸ 1) + 1 + ((2 ^ n) ∸ 1)) tick
+    (rep (2 ^ n ∸ 1) tick >> rep 1 tick >> rep (2 ^ n ∸ 1) tick)
+      ≡⟨ cong (λ x → x >> r) (sym (rep-mn (2 ^ n ∸ 1) 1 tick)) ⟩
+    (rep (2 ^ n ∸ 1 + 1) tick >> rep (2 ^ n ∸ 1) tick)
+      ≡⟨ sym (rep-mn (2 ^ n ∸ 1 + 1) (2 ^ n ∸ 1) tick) ⟩
+    rep ((2 ^ n ∸ 1) + 1 + (2 ^ n ∸ 1)) tick
       ≡⟨ cong (λ x → rep x tick) (sym (thm n)) ⟩
-    rep ((2 ^ (n + 1)) ∸ 1) tick
-      ≡⟨ cong (λ x → rep ((2 ^ x) ∸ 1) tick) (sym (succ n)) ⟩
-    rep ((2 ^ (suc n)) ∸ 1) tick
+    rep (2 ^ (n + 1) ∸ 1) tick
+      ≡⟨ cong (λ x → rep (2 ^ x ∸ 1) tick) (sym (succ n)) ⟩
+    rep (2 ^ (suc n) ∸ 1) tick
   ∎
     where f = λ x → x >> tick >> x
-          r = rep ((2 ^ n) ∸ 1) tick
+          r = rep (2 ^ n ∸ 1) tick
           g = λ x → r >> x >> r

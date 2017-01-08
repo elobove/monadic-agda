@@ -5,17 +5,16 @@
 
 module Proof.MonadNonDet where
 
-open import Abel.Category.Monad
+open import Proof.Monad
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
 ------------------------------------------------------------------
 -- MonadNonDet
 
-record MonadNonDet {M : Set → Set} (monad : Monad'' M) : Set₁ where
-  constructor
-    mkMonadNonDet
+record MonadNonDet {M : Set → Set} (monad : Monad M) : Set₁ where
+  constructor mkMonadNonDet
 
-  open Monad'' monad
+  open Monad monad
 
   field
     fail : {A : Set} → M A

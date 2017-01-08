@@ -4,19 +4,14 @@
 
 module Proof.MonadCount where
 
-open import Abel.Category.Monad
+open import Proof.Monad
 open import Data.Unit
 
 ------------------------------------------------------------------
 -- MonadCount
 
-record MonadCount {M : Set → Set} (monad : Monad'' M) : Set₁ where
+record MonadCount {M : Set → Set} (monad : Monad M) : Set₁ where
   constructor mkMonadCount
-
-  open Monad'' monad
 
   field
     tick : M ⊤
-
-  skip : M ⊤
-  skip = return tt

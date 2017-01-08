@@ -4,13 +4,13 @@
 -- | catching the exception and returning zero for the overall product
 ------------------------------------------------------------------------------
 
-open import Abel.Category.Monad
+open import Proof.Monad
 open import Proof.MonadNonDet
 open import Proof.MonadExcept
 
 module Proof.FastProduct
   {M   : Set → Set}
-  {Mm  : Monad'' M}
+  {Mm  : Monad M}
   {Mnd : MonadNonDet Mm}
   (Me  : MonadExcept Mnd)
   where
@@ -24,7 +24,7 @@ open import Relation.Nullary.Decidable
 open import Relation.Binary.PropositionalEquality.Core using (sym)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
-open Monad''     Mm
+open Monad       Mm
 open MonadNonDet Mnd
 open MonadExcept Me
 open Relation.Binary.PropositionalEquality.≡-Reasoning

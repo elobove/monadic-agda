@@ -4,20 +4,19 @@
 
 module Proof.MonadExcept where
 
-open import Abel.Category.Monad
+open import Proof.Monad
 open import Proof.MonadNonDet
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
 ------------------------------------------------------------------
 -- MonadExcept
 
-record MonadExcept {M : Set → Set} {Mnd : Monad'' M}
+record MonadExcept {M : Set → Set} {Mnd : Monad M}
   (monad : MonadNonDet Mnd) : Set₁ where
 
-  constructor
-    mkMonadExcept
+  constructor mkMonadExcept
 
-  open Monad'' Mnd
+  open Monad Mnd
   open MonadNonDet monad
 
   field
