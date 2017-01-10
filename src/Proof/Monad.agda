@@ -1,6 +1,8 @@
 ------------------------------------------------------------------------------
--- | Monad: Kleisli triple or monad in extension form
--- | Taked from: Abel ( https://github.com/jpvillaisaza/abel )
+-- | Monad: Kleisli triple or monad in extension form [1]
+-- |
+-- | [1] Villa Izasa, J. P. (2014) Category Theory Applied to Functional
+-- |     Programming § 6.3.2
 ------------------------------------------------------------------------------
 
 module Proof.Monad where

@@ -10,11 +10,10 @@
 \usepackage{fdsymbol}
 \usepackage{graphicx}
 \usepackage{amsmath}
-
 \usepackage{tikz}
 
 \pgfplotsset{width=15cm,height=7cm,compat=1.7}
-\usetikzlibrary{shapes.geometric, arrows}
+\usetikzlibrary{shapes.geometric, arrows, positioning,calc}
 
 \definecolor{nBlue}{RGB}{38,65,189}
 
@@ -55,6 +54,7 @@
 \tikzstyle{rec}   = [rectangle, rounded corners, draw=nBlue, fill=nBlue!30,
 text width=3cm, text centered, minimum height=1cm]
 \tikzstyle{marks} = [text width=4cm, inner sep=0pt]
+\tikzstyle{square} = [minimum height=1cm, minimum width=1cm, draw=nBlue]
 \tikzstyle{arrow} = [->, >=latex, draw=nBlue]
 
 %% Agda and Haskell colors
@@ -70,14 +70,15 @@ text width=3cm, text centered, minimum height=1cm]
   keywordstyle=\color{DarkOrange3}\ttfamily,
   morekeywords={[2]{Set, skip, hanoi, rep, begin, cong, sym, succ, sym,
       moves, Monad, MonadCount, MonadNonDet, MonadExcept, work, fastProd,
-      pureFastProd, product, if, then, else, List, elem}},
+      pureFastProd, product, if, then, else, List, elem, push, function, into,
+      extra}},
   keywordstyle={[2]{\color{MediumBlue}\ttfamily}},
   morekeywords={[3]{mkMonad, mkMonadCount, mkMonadExcept, tt, zero, suc, refl}},
   keywordstyle={[3]{\color{DarkGreen}\ttfamily}},
   morekeywords={[4]{return, unity, left, right, associativity, tick, catch,
       fail}},
   keywordstyle={[4]{\color{DeepPink2}\ttfamily}},
-  % moredelim=[is][\color{gray}]{@}{@},
+  %moredelim=[is][\color{nBlue}]{@}{@},
   basicstyle=\fontfamily{dejavu}\selectfont\ttfamily\tiny\color{black},
   literate={
     {->}     {{$\rightarrow$}}2
@@ -85,6 +86,7 @@ text width=3cm, text centered, minimum height=1cm]
     {Aa}     {{$\forall$}}2
     {lam}    {{$\lambda$}}1
     {_1}     {{{\color{MediumBlue}$_1$}}}1
+    {_2}     {{{\color{MediumBlue}$_{2}$}}}1
     {-fail1} {{{\color{DeepPink2}$-$fail$_1$}}}5
     {-fail2} {{{\color{DeepPink2}$-$fail$_2$}}}5
     {-catch} {{{\color{DeepPink2}$-$catch}}}5
@@ -119,7 +121,7 @@ text width=3cm, text centered, minimum height=1cm]
   },
   identifierstyle=\ttfamily\color{black},
   sensitive=true,
-  comment=[l]{--|},
+  comment=[l]{--},
   commentstyle=\color{DarkRed}\ttfamily,
   stringstyle=\color{MediumBlue}\ttfamily,
   autogobble=true
@@ -201,15 +203,20 @@ Medellín, Colombia}
       \visible<7->{\draw [arrow,dashed] (Sm) -- (v);}
     \end{tikzpicture}
     \only<4->{\footnotetext[1]{Moggi, E. (1991) Notions of computation and
-        monads}}
+        monads.}}
     \only<4->{\footnotetext[2]{Wadler, P. (1995) Monads for functional
-        programming}}
+        programming.}}
     \only<6->{\footnotetext[3]{Gibbons, J., \& Hinze, R. (2011) Just do it:
-        simple monadic equational reasoning}}
+        simple monadic equational reasoning.}}
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Simple Monadic Equational Reasoning}
+\begin{frame}[fragile]{Just do It: Simple Monadic Equational
+    Reasoning\footnotemark[3]}
+
+  \footnotetext[3]{Gibbons, J., \& Hinze, R. (2011) Just do it:
+    simple monadic equational reasoning.}
+
   \begin{figure}
     \centering
     \begin{tikzpicture}[thick, scale=0.7, transform shape]
@@ -223,7 +230,7 @@ Medellín, Colombia}
       \node(Ha)  [rec, yshift=-1cm, below of = Mc] {Tower of Hanoi};
       \node(Perm)[rec, yshift=-1cm, below of = Mnd]{Permutations};
       \node(Fp)  [rec, yshift=-1cm, below of = Me] {Fast Product};
-      \node(Eq)  [rec, yshift=-1cm, below of = Ms] {Eight queens};
+      \node(Eq)  [rec, yshift=-1cm, below of = Ms] {Eight Queens};
 
       \draw [draw=nBlue] (Mm) -- (6,1.5);
       \draw [arrow] (6,1.5) -| (Mc);
@@ -239,7 +246,7 @@ Medellín, Colombia}
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Monad}
+\begin{frame}[fragile]{Monad}{Definition}
   \begin{columns}[t]
     \begin{column}{.5\textwidth}
       \begin{block}{Haskell}
@@ -252,6 +259,7 @@ Medellín, Colombia}
     \end{column}
 
     \begin{column}{.5\textwidth}
+      \pause
       \begin{block}{Properties}
         \begin{lstlisting}[language=Haskell, mathescape]
           return x >>= f   = f x
@@ -263,10 +271,13 @@ Medellín, Colombia}
     \end{column}
   \end{columns}
 
-  \begin{block}{Agda}
+  \pause
+  \begin{block}{Agda\footnotemark[4]}
+    \only<3->{\footnotetext[4]{Villa Izasa, J. P. (2014) Category Theory Applied
+      to Functional Programming.}}
     \begin{lstlisting}[language=Agda, mathescape]
       record Monad (M : Set -> Set) : Set_1 where
-      constructor mkMonad
+        constructor mkMonad
 
         field
           return : {A : Set} -> A -> M A
@@ -323,10 +334,10 @@ Medellín, Colombia}
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Tower of Hanoi}
+\begin{frame}[fragile]{Tower of Hanoi}{A counter example}
   \begin{block}{MonadCount}
     \begin{lstlisting}[language=Agda, mathescape]
-      --| Supports effect of counting
+      -- Supports effect of counting
       record MonadCount {M : Set -> Set} (monad : Monad M) : Set_1 where
         constructor mkMonadCount
 
@@ -337,26 +348,26 @@ Medellín, Colombia}
 
   \begin{block}{Extra functions}
     \begin{lstlisting}[language=Agda, mathescape]
-      --| Sequential composition
+      -- Sequential composition
       _>>_ : {A B : Set} -> M A -> M B -> M B
       mx >> my = mx >>= lam _ -> my
 
-      --| Identity computation
+      -- Identity computation
       skip : M Tt
       skip = return tt
     \end{lstlisting}
   \end{block}
 \end{frame}
 
-\begin{frame}[fragile]{Tower of Hanoi}
+\begin{frame}[fragile]{Tower of Hanoi}{A counter example}
   \begin{block}{Implementation}
     \begin{lstlisting}[language=Agda, mathescape]
-      --| Ticks the counter once for each move of a disc
+      -- Ticks the counter once for each move of a disk
       hanoi : bN -> M Tt
       hanoi zero    = skip
       hanoi (suc n) = hanoi n >> tick >> hanoi n
 
-      --| Repeats a unit computation a fixed number of times
+      -- Repeats a unit computation a fixed number of times
       rep : bN -> M Tt -> M Tt
       rep zero    mx = skip
       rep (suc n) mx = mx >> rep n mx
@@ -372,10 +383,10 @@ Medellín, Colombia}
   \end{block}
 \end{frame}
 
-\begin{frame}[fragile]{Tower of Hanoi}
+\begin{frame}[fragile]{Tower of Hanoi}{A counter example}
   \begin{block}{Proof}
     \begin{lstlisting}[language=Agda, mathescape]
-      --| Solving a Tower of Hanoi of n disks requires (at least) @\textcolor{DarkRed}{2$^n$-1}@ moves
+      -- Solving a Tower of Hanoi of n discs requires @\textcolor{DarkRed}{2$^n$-1}@ moves
       moves : Aa n -> hanoi n == rep (2^n -N 1) tick
       moves zero    = refl
       moves (suc n) =
@@ -401,7 +412,16 @@ Medellín, Colombia}
   \end{block}
 \end{frame}
 
-\begin{frame}[fragile]{Monad Except}
+\begin{frame}{What did just happened?}
+  \begin{itemize}
+  \item We modeled a problem using monads in Agda
+  \item We proved that our solution behaves as expected only using the
+    properties of monads (not their instances)
+  \item We were able to use (``simple'') equational reasoning in our proofs
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Monad Except}{Another subclass of Monad}
   \begin{lstlisting}[language=Agda, mathescape]
     record MonadExcept {M : Set -> Set} {Mnd : Monad M}
       (monad : MonadNonDet Mnd) : Set_1 where
@@ -422,9 +442,50 @@ Medellín, Colombia}
   \end{lstlisting}
 \end{frame}
 
-\begin{frame}[fragile]{Monad Except}
+\begin{frame}[fragile]{Fast Product}{Reasoning with exceptions}
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[thick, scale=0.6, transform shape]
+      \node (s1) [square] {7};
+      \node (s2) [square, xshift=1cm] {9};
+      \node (s3) [square, xshift=2cm] {3};
+      \node (s4) [square, xshift=3cm] {0};
+      \node (s5) [square, xshift=4cm] {1};
+      \node (s6) [square, xshift=5cm] {5};
+      \node (s7) [minimum height=1cm, xshift=6cm] {= 0};
+      \node (t1) [above of = s4]{\texttt{product$\mathbb{N}$}};
+
+      \node (c1) [square, xshift=9cm] {7};
+      \node (c2) [square, xshift=10cm] {9};
+      \node (c3) [square, xshift=11cm] {3};
+      \node (c4) [square, xshift=12cm, fill=nBlue!40] {0};
+      \node (c5) [square, xshift=13cm] {1};
+      \node (c6) [square, xshift=14cm] {5};
+      \node (c7) [minimum height=1cm, xshift=15cm] {= 0};
+      \node (t2) [above of = c4]{\texttt{fastProd}};
+
+      \foreach \x in {1,...,5}{
+        \pgfmathtruncatemacro{\y}{\x + 1}
+        \draw [arrow] (s\x.south) to [controls=+(270:0.8) and
+        +(270:0.8)] node [anchor=north] {*} (s\y.south);
+      }
+
+      % \foreach \x in {1,...,3}{
+      %   \pgfmathtruncatemacro{\y}{\x + 1}
+      %   \draw [arrow] (c\x.south) to [controls=+(270:0.8) and
+      %   +(270:0.8)] node [anchor=north] {*} (c\y.south);
+      % }
+
+      \draw [arrow] (s6.south) to [controls=+(270:0.9) and
+        +(270:0.9)] node [anchor=north] {=} (s7.south);
+
+      \draw [arrow] (c4.south) to [controls=+(270:0.9) and
+      +(270:0.9)] node [anchor=north] {=} (c7.south);
+    \end{tikzpicture}
+  \end{figure}
+
   \begin{lstlisting}[language=Agda, mathescape]
-    --| Computes the product of a list of Natural numbers
+    -- Computes the product of a list of Natural numbers
     productbN : List bN -> bN
     productbN []        = 1
     productbN (x :: xs) = x * productbN xs
@@ -434,12 +495,31 @@ Medellín, Colombia}
 
     fastProd : List bN -> M bN
     fastProd xs = catch (work xs) (return 0)
-
-    pureFastProd : (xs : List bN) -> fastProd xs == return (productbN xs)
-
   \end{lstlisting}
 \end{frame}
 
-\begin{frame}{Conclusions}
+\begin{frame}[fragile]{Fast Product}{Reasoning with exceptions}
+  \begin{lstlisting}[language=Agda, mathescape]
+    pureFastProd : (xs : List bN) -> fastProd xs == return (productbN xs)
+    pureFastProd xs =
+      begin
+        catch (if (elem 0 xs) then fail else (return (productbN xs))) (return 0)
+          =={{ pop-if catch (elem 0 xs) }}
+        (if (elem 0 xs) then mx else my)
+          =={{ cong (lam x -> (if (elem 0 xs) then x else my))
+                   (catch-fail1 (return 0)) }}
+        (if (elem 0 xs) then (return 0) else my)
+          =={{ cong (lam x -> (if (elem 0 xs) then (return 0) else x))
+                   (catch-return (productbN xs) (return 0)) }}
+        (if (elem 0 xs) then (return 0) else (return (productbN xs)))
+          =={{ sym (@push-function-into-if@ return (elem 0 xs)) }}
+        return (if (elem 0 xs) then 0 else (productbN xs))
+          =={{ cong return extra-if }}
+        return (productbN xs)
+      qed
+        where mx       = catch fail (return 0)
+              my       = catch (return (productbN xs)) (return 0)
+              extra-if = if-cong (lam p -> sym (product0_2 xs p)) (lam _ -> refl)
+  \end{lstlisting}
 \end{frame}
 \end{document}

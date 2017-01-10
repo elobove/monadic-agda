@@ -64,7 +64,7 @@ if-cong : {a c d : ℕ} {b : Bool} → (b ≡ true → a ≡ d) →
 if-cong {b = true } t _ = t refl
 if-cong {b = false} _ f = f refl
 
---| Pop an if statement from a parameter of a function
+-- | Pop an if statement from a parameter of a function
 pop-if :
   ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} (f : A → B → C) x {y z w} →
   f (if x then y else z) w ≡ (if x then (f y w) else (f z w))
@@ -98,3 +98,12 @@ pureFastProd xs =
     where mx       = catch fail (return 0)
           my       = catch (return (productℕ xs)) (return 0)
           extra-if = if-cong (λ p → sym (product0₂ xs p)) (λ _ → refl)
+
+-- | Rewriting fastProd
+fastProd2 : List ℕ → M ℕ
+fastProd2 xs = catch (work2 xs) (return 0)
+  where
+    work2 : List ℕ → M ℕ
+    work2 []           = return 1
+    work2 (zero ∷ _ ) = fail
+    work2 (x    ∷ xs) = fmap (_*_ x) (fastProd2 xs)

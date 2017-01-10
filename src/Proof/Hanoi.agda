@@ -21,7 +21,7 @@ open Monad      Mm
 open MonadCount Mc
 
 -- | Solves the Towers of Hanoi problem. It ticks the counter once for
--- | each move of a disc
+-- | each move of a disk
 hanoi : ℕ → M ⊤
 hanoi zero    = skip
 hanoi (suc n) = hanoi n >> tick >> hanoi n
@@ -49,7 +49,7 @@ rep-mn (suc m) n mx =
   ∎
     where f = λ x → bind (λ _ → x) mx
 
--- | Verification of hanoi
+-- | Solving a Tower of Hanoi of n discs requires 2^n ∸ 1 moves
 moves : ∀ n → hanoi n ≡ rep (2 ^ n ∸ 1) tick
 moves zero    = refl
 moves (suc n) =
